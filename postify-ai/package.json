@@ -1,0 +1,33 @@
+{
+  "name": "postify-ai",
+  "version": "1.0.0",
+  "description": "A clean and interactive web application to display articles from Hugging Face.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "nextjs",
+    "huggingface",
+    "articles",
+    "web",
+    "react"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "axios": "^0.21.1",
+    "tailwindcss": "^2.2.19"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.4",
+    "eslint": "^7.32.0",
+    "eslint-config-next": "latest"
+  }
+}
