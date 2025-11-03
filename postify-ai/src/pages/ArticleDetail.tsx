@@ -57,6 +57,7 @@ const ArticleDetail = () => {
 
       const data = await response.json();
 
+<<<<<<< Updated upstream
       // Armazena os dados gerados no sessionStorage para usar na próxima página
       sessionStorage.setItem("generatedPost", JSON.stringify({
         articleId: article.id,
@@ -65,10 +66,40 @@ const ArticleDetail = () => {
 
       toast.success("Post gerado com sucesso!");
       navigate(`/post/${article.id}`);
+=======
+      // Normaliza formatos comuns retornados pelo n8n / HTTP responders:
+      // - Pode vir como array [{ output: {...} }]
+      // - Ou como { output: {...} }
+      // - Ou diretamente o objeto esperado
+      const payload =
+        (Array.isArray(data) && data[0]?.output) || data?.output || data?.data || data;
+
+      // Em alguns casos ainda há um nível extra 'output'
+      const normalized = payload?.output || payload;
+
+      // Garantir que hashtags seja um array quando for string serializado
+      if (normalized && typeof normalized.hashtags === "string") {
+        try {
+          normalized.hashtags = JSON.parse(normalized.hashtags);
+        } catch (e) {
+          // se não for JSON válido, deixa como string
+        }
+      }
+
+      // Salva o objeto normalizado para a página de preview (GeneratedPost)
+      sessionStorage.setItem(
+        "generatedPost",
+        JSON.stringify({ articleId: article.id, ...(normalized || {}) })
+      );
+
+  toast.success("Post gerado com sucesso!");
+  // Mantém a navegação original para a página do artigo
+  navigate(`/post/${article.id}`);
+>>>>>>> Stashed changes
     } catch (error) {
       console.error("Error generating post:", error);
       toast.error("Erro ao gerar post", {
-        description: "Tente novamente mais tarde.",
+        description: "Tente novamente mais tarde. " + error.message
       });
     } finally {
       setIsGenerating(false);
