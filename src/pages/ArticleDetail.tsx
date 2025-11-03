@@ -18,21 +18,21 @@ const ArticleDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const loadArticle = async () => {
+      setIsLoading(true);
+      try {
+        const papers = await fetchDailyPapers();
+        const found = papers.find((a) => a.id === id);
+        setArticle(found || null);
+      } catch (error) {
+        toast.error("Erro ao carregar artigo");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadArticle();
   }, [id]);
-
-  const loadArticle = async () => {
-    setIsLoading(true);
-    try {
-      const papers = await fetchDailyPapers();
-      const found = papers.find((a) => a.id === id);
-      setArticle(found || null);
-    } catch (error) {
-      toast.error("Erro ao carregar artigo");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleGeneratePost = async () => {
     if (!article) return;
@@ -57,16 +57,6 @@ const ArticleDetail = () => {
 
       const data = await response.json();
 
-<<<<<<< Updated upstream
-      // Armazena os dados gerados no sessionStorage para usar na próxima página
-      sessionStorage.setItem("generatedPost", JSON.stringify({
-        articleId: article.id,
-        ...data
-      }));
-
-      toast.success("Post gerado com sucesso!");
-      navigate(`/post/${article.id}`);
-=======
       // Normaliza formatos comuns retornados pelo n8n / HTTP responders:
       // - Pode vir como array [{ output: {...} }]
       // - Ou como { output: {...} }
@@ -92,10 +82,9 @@ const ArticleDetail = () => {
         JSON.stringify({ articleId: article.id, ...(normalized || {}) })
       );
 
-  toast.success("Post gerado com sucesso!");
-  // Mantém a navegação original para a página do artigo
-  navigate(`/post/${article.id}`);
->>>>>>> Stashed changes
+      toast.success("Post gerado com sucesso!");
+      // Mantém a navegação original para a página do artigo
+      navigate(`/post/${article.id}`);
     } catch (error) {
       console.error("Error generating post:", error);
       toast.error("Erro ao gerar post", {
