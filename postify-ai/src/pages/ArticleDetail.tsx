@@ -8,7 +8,7 @@ import { Article } from "@/types/article";
 import { fetchDailyPapers } from "@/services/papersService";
 import { toast } from "sonner";
 
-const N8N_WEBHOOK_URL = "https://webhook.terapiaempresarial.com.br/webhook/901aabbe-2bca-4afc-9064-851fdb88f065";
+const N8N_WEBHOOK_URL = "https://webhook.terapiaempresarial.com.br/webhook/postfy-ia";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -36,9 +36,9 @@ const ArticleDetail = () => {
 
   const handleGeneratePost = async () => {
     if (!article) return;
-    
+
     setIsGenerating(true);
-    
+
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
@@ -56,13 +56,13 @@ const ArticleDetail = () => {
       if (!response.ok) throw new Error("Falha ao gerar post");
 
       const data = await response.json();
-      
+
       // Armazena os dados gerados no sessionStorage para usar na próxima página
       sessionStorage.setItem("generatedPost", JSON.stringify({
         articleId: article.id,
         ...data
       }));
-      
+
       toast.success("Post gerado com sucesso!");
       navigate(`/post/${article.id}`);
     } catch (error) {
@@ -110,7 +110,7 @@ const ArticleDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <Link to="/">
           <Button variant="ghost" className="mb-6">
