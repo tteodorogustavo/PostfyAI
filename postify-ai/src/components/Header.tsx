@@ -1,22 +1,22 @@
-import React from 'react';
-import Link from 'next/link';
+import { Brain } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const Header: React.FC = () => {
-    return (
-        <header className="bg-blue-600 text-white p-4">
-            <h1 className="text-2xl font-bold">PostifyAI</h1>
-            <nav>
-                <ul className="flex space-x-4">
-                    <li>
-                        <Link href="/" className="hover:underline">Home</Link>
-                    </li>
-                    <li>
-                        <Link href="/articles" className="hover:underline">Articles</Link>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-    );
+const Header = () => {
+  return (
+    <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4">
+        <Link to="/" className="flex items-center justify-center gap-3 hover:opacity-80 transition-opacity">
+          <div className="bg-gradient-primary p-2 rounded-xl">
+            <Brain className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-foreground">PostifyAI</h1>
+            <p className="text-xs text-muted-foreground">Transforme Pesquisas em Posts do LinkedIn</p>
+          </div>
+        </Link>
+      </div>
+    </header>
+  );
 };
 
 export default Header;
