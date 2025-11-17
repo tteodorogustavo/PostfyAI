@@ -1,15 +1,29 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Copy, CheckCheck, Hash, FileText, Heading } from "lucide-react";
+import { ArrowLeft, Copy, CheckCheck, Hash, FileText, Heading, Linkedin, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { GeneratedPost as GeneratedPostType } from "@/types/article";
+
+const LINKEDIN_WEBHOOK_URL = "https://webhook.terapiaempresarial.com.br/webhook/postlinkedin";
 
 const GeneratedPost = () => {
   const { id } = useParams();
   const [copied, setCopied] = useState(false);
-  const [generatedPost, setGeneratedPost] = useState<any>(null);
+  const [generatedPost, setGeneratedPost] = useState<GeneratedPostType | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [linkedinUrn, setLinkedinUrn] = useState<string | null>(null);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("generatedPost");
@@ -42,6 +56,66 @@ const GeneratedPost = () => {
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast.error("Falha ao copiar");
+    }
+  };
+
+  const handlePublishLinkedin = async () => {
+    if (!generatedPost) return;
+
+    setIsPublishing(true);
+
+    try {
+      const response = await fetch(LINKEDIN_WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: generatedPost.summary,
+          hashtags: generatedPost.hashtags || [],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao publicar no LinkedIn");
+      }
+
+      const data = await response.json();
+      
+      // Extract URN from response array
+      const urn = Array.isArray(data) && data[0]?.urn ? data[0].urn : data?.urn;
+      
+      if (!urn) {
+        throw new Error("URN não recebido do LinkedIn");
+      }
+
+      setLinkedinUrn(urn);
+      setShowLinkDialog(true);
+      toast.success("Post publicado no LinkedIn!");
+    } catch (error) {
+      console.error("Error publishing to LinkedIn:", error);
+      toast.error("Erro ao publicar no LinkedIn", {
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde",
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!linkedinUrn) return;
+
+    try {
+      // Extract the share ID from the URN (urn:li:share:7396299652368596992 -> 7396299652368596992)
+      const shareId = linkedinUrn.split(":").pop();
+      const linkedinUrl = `https://www.linkedin.com/feed/update/${linkedinUrn}`;
+      
+      await navigator.clipboard.writeText(linkedinUrl);
+      setLinkCopied(true);
+      toast.success("Link copiado!");
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (error) {
+      toast.error("Falha ao copiar link");
     }
   };
 
@@ -122,12 +196,13 @@ const GeneratedPost = () => {
               </>
             )}
 
-            {/* Copy Button */}
-            <div className="pt-4">
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={handleCopy}
                 className="w-full sm:w-auto"
                 size="lg"
+                variant="outline"
               >
                 {copied ? (
                   <>
@@ -141,10 +216,65 @@ const GeneratedPost = () => {
                   </>
                 )}
               </Button>
+              
+              <Button
+                onClick={handlePublishLinkedin}
+                disabled={isPublishing}
+                className="w-full sm:w-auto"
+                size="lg"
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Publicando...
+                  </>
+                ) : (
+                  <>
+                    <Linkedin className="w-4 h-4 mr-2" />
+                    Publicar no LinkedIn
+                  </>
+                )}
+              </Button>
             </div>
           </Card>
         </div>
       </main>
+
+      {/* LinkedIn Link Dialog */}
+      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Post Publicado no LinkedIn!</DialogTitle>
+            <DialogDescription>
+              Seu post foi publicado com sucesso. Copie o link abaixo para compartilhar.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg break-all text-sm">
+              {linkedinUrn && `https://www.linkedin.com/feed/update/${linkedinUrn}`}
+            </div>
+            
+            <Button
+              onClick={handleCopyLink}
+              className="w-full"
+              size="lg"
+            >
+              {linkCopied ? (
+                <>
+                  <CheckCheck className="w-4 h-4 mr-2" />
+                  Link Copiado!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copiar Link
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
