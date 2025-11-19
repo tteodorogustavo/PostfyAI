@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Sparkles, Loader2, Calendar, Users, ExternalLink } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, Calendar, Users, ExternalLink, Languages } from "lucide-react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Article } from "@/types/article";
+import { Article, Language } from "@/types/article";
 import { fetchDailyPapers } from "@/services/papersService";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const N8N_WEBHOOK_URL = "https://webhook.terapiaempresarial.com.br/webhook/postfy-ia";
 
@@ -16,6 +23,7 @@ const ArticleDetail = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('pt');
 
   useEffect(() => {
     const loadArticle = async () => {
@@ -50,6 +58,7 @@ const ArticleDetail = () => {
           abstract: article.abstract,
           authors: article.authors,
           url: article.url,
+          language: selectedLanguage,
         }),
       });
 
@@ -79,7 +88,7 @@ const ArticleDetail = () => {
       // Salva o objeto normalizado para a página de preview (GeneratedPost)
       sessionStorage.setItem(
         "generatedPost",
-        JSON.stringify({ articleId: article.id, ...(normalized || {}) })
+        JSON.stringify({ articleId: article.id, language: selectedLanguage, ...(normalized || {}) })
       );
 
       toast.success("Post gerado com sucesso!");
@@ -193,6 +202,24 @@ const ArticleDetail = () => {
                     Transforme este artigo científico em um post envolvente para o LinkedIn com geração de conteúdo por IA
                   </p>
                 </div>
+              </div>
+
+              {/* Language Selection */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Languages className="w-4 h-4" />
+                  Idioma do Post
+                </label>
+                <Select value={selectedLanguage} onValueChange={(value) => setSelectedLanguage(value as Language)}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Selecione o idioma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pt">🇧🇷 Português</SelectItem>
+                    <SelectItem value="en">🇺🇸 English</SelectItem>
+                    <SelectItem value="es">🇪🇸 Español</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button
