@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Copy, CheckCheck, Hash, FileText, Heading, Linkedin, Loader2 } from "lucide-react";
+import { ArrowLeft, Copy, CheckCheck, Hash, FileText, Heading, Linkedin, Loader2, Languages } from "lucide-react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -186,10 +186,20 @@ const GeneratedPost = () => {
               <div className="p-2 bg-accent rounded-lg">
                 <CheckCheck className="w-5 h-5 text-accent-foreground" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h2 className="font-semibold text-foreground">Post Gerado com Sucesso!</h2>
                 <p className="text-sm text-muted-foreground">Seu post para LinkedIn está pronto para compartilhar</p>
               </div>
+              {generatedPost.language && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-background rounded-full text-sm">
+                  <Languages className="w-4 h-4" />
+                  <span className="font-medium">
+                    {generatedPost.language === 'pt' && '🇧🇷 Português'}
+                    {generatedPost.language === 'en' && '🇺🇸 English'}
+                    {generatedPost.language === 'es' && '🇪🇸 Español'}
+                  </span>
+                </div>
+              )}
             </div>
           </Card>
 

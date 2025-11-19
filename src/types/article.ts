@@ -11,4 +11,7 @@ export interface GeneratedPost {
   title: string;
   summary: string;
   hashtags: string[];
+  language?: string;
 }
+
+export type Language = 'pt' | 'en' | 'es';
