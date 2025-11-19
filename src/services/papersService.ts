@@ -1,6 +1,13 @@
 import { Article } from "@/types/article";
 
-const HF_PAPERS_API = "https://huggingface.co/api/daily_papers";
+// pega a data atual no formato YYYY-MM-DD preciso que fique assim: 2025-11-19
+const today = new Date();
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
+const formattedDate = `${year}-${month}-${day}`;
+
+const HF_PAPERS_API = "https://huggingface.co/api/daily_papers?date=" + formattedDate;
 
 interface HFPaper {
   paper: {
